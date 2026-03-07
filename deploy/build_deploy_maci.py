@@ -15,10 +15,10 @@ PYPI_UNIQUE_ID = "__token__"
 USER_GITHUB_CFG_FILE = f"{USER_HOMEPATH}/.gitconfig"
 USER_SSH_KEY_FILE = f"{USER_HOMEPATH}/.ssh/id_ssh.deploy"
 USER_SSH_CFG_FILE = f"{USER_HOMEPATH}/.ssh/config"
-GITHUB_MACI_REPO = "git@github.com-maci:aaronater10/maci.git"
+GITHUB_MACI_REPO = "git@github.com-maci:aaronater10/test-maci.git"
 ignore_github_deploy_list = (
-    'maci-std',
-    'maci-only'
+    'test-maci-std',
+    'test-maci-only'
 )
 
 

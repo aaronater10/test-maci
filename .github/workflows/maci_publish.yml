@@ -11,7 +11,7 @@
 
 
 # Workflow Name
-name: publish-maci
+name: test-publish-test-maci
 
 # Trigger on "qa-testing" workflow completion from "main" branch
 on:
@@ -37,7 +37,7 @@ jobs:
     
 
   # Deploy maci if on-tests-pass success
-  deploy-maci:
+  deploy-test-maci:
     needs: on-tests-pass
     if: success()
 
@@ -51,13 +51,13 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
 
-      - name: PASSED tests - Building env and deploying maci...
-        run: echo "PASSED tests - Building env and deploying maci..."
+      - name: PASSED tests - Building env and deploying test-maci...
+        run: echo "PASSED tests - Building env and deploying test-maci..."
 
       - name: Setup Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -66,17 +66,17 @@ jobs:
           python3 -m pip install --upgrade pip
           python3 -m pip install -r "deploy/requirements-deploy.txt"
 
-      - name: Build and deploy -> maci
+      - name: Build and deploy -> test-maci
         env:
           DEPLOY_PYPI_TOKEN: ${{ secrets.MACI_DEPLOY_PYPI_API_TOKEN }}
           DEPLOY_SSH_KEY: ${{ secrets.MACI_DEPLOY_GITHUB_KEY }}
         
-        run: python3 -B deploy/build_deploy_maci.py "maci" "${DEPLOY_PYPI_TOKEN}" "${DEPLOY_SSH_KEY}"
+        run: python3 -B deploy/build_deploy_maci.py "test-maci" "${DEPLOY_PYPI_TOKEN}" "${DEPLOY_SSH_KEY}"
   
   
-  # Deploy maci-std if deploy-maci success
-  deploy-maci-std:
-    needs: ["deploy-maci", "on-tests-pass"]
+  # Deploy test-maci-std if deploy-maci success
+  deploy-test-maci-std:
+    needs: ["deploy-test-maci", "on-tests-pass"]
     if: success()
 
     strategy:
@@ -89,13 +89,13 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
 
-      - name: PASSED tests - Building env and deploying maci-std...
-        run: echo "PASSED tests - Building env and deploying maci-std..."
+      - name: PASSED tests - Building env and deploying test-maci-std...
+        run: echo "PASSED tests - Building env and deploying test-maci-std..."
 
       - name: Setup Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -104,16 +104,16 @@ jobs:
           python3 -m pip install --upgrade pip
           python3 -m pip install -r "deploy/requirements-deploy.txt"
   
-      - name: Build and deploy -> maci-std
+      - name: Build and deploy -> test-maci-std
         env:
           DEPLOY_PYPI_TOKEN: ${{ secrets.MACI_STD_DEPLOY_PYPI_API_TOKEN }}
         
-        run: python3 -B deploy/build_deploy_maci.py "maci-std" "${DEPLOY_PYPI_TOKEN}"
+        run: python3 -B deploy/build_deploy_maci.py "test-maci-std" "${DEPLOY_PYPI_TOKEN}"
 
 
-  # Deploy maci-only if deploy-maci-std success
-  deploy-maci-only:
-    needs: ["deploy-maci", "on-tests-pass"]
+  # Deploy test-maci-only if deploy-test-maci success
+  deploy-test-maci-only:
+    needs: ["deploy-test-maci", "on-tests-pass"]
     if: success()
 
     strategy:
@@ -126,13 +126,13 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
 
-      - name: PASSED tests - Building env and deploying maci-only...
-        run: echo "PASSED tests - Building env and deploying maci-only..."
+      - name: PASSED tests - Building env and deploying test-maci-only...
+        run: echo "PASSED tests - Building env and deploying test-maci-only..."
 
       - name: Setup Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -141,11 +141,11 @@ jobs:
           python3 -m pip install --upgrade pip
           python3 -m pip install -r "deploy/requirements-deploy.txt"
 
-      - name: Build and deploy -> maci-only
+      - name: Build and deploy -> test-maci-only
         env:
           DEPLOY_PYPI_TOKEN: ${{ secrets.MACI_ONLY_DEPLOY_PYPI_API_TOKEN }}
         
-        run: python3 -B deploy/build_deploy_maci.py "maci-only" "${DEPLOY_PYPI_TOKEN}"
+        run: python3 -B deploy/build_deploy_maci.py "test-maci-only" "${DEPLOY_PYPI_TOKEN}"
 
   
 
