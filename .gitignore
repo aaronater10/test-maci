@@ -1,0 +1,30 @@
+# Cache
+.cache/
+*.pyc
+__pycache__
+.pytest_cache/
+.mypy_cache/
+
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
+
+# Safety
+.safety-project.ini
+
+# Local Only Dirs and Files
+.venv*/
+venv*/
+.coverage
+htmlcov/
+priv_tests/
+temp_old/
+main.py
+test_perf*
+run_coverage.*
+file_line_count.bash
+
+# Local Tools
+const_test.cmd

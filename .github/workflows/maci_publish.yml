@@ -1,0 +1,169 @@
+# maci: Publish to PyPI via Auto-Deployment
+
+# This workflow will build and publish the primary source maci library contents to pypi.
+
+# Python version being used: 3.12
+# OS being used to deploy: Ubuntu-24
+# Triggered by all 3 Following Conditions being met:
+#  - Run if QA Testing Workflow Finishes
+#  - QA Testing completion must complete from "main" branch
+#  - Deployment to pypi will only occur if QA Tests all passed
+
+
+# Workflow Name
+name: publish-maci
+
+# Trigger on "qa-testing" workflow completion from "main" branch
+on:
+  workflow_run:
+    workflows:
+      - qa-testing
+    types:
+      - completed
+    branches:
+      - main
+
+# Build environment, package, and deploy
+jobs:
+
+  # PASS: Run jobs if QA tests pass
+  on-tests-pass:
+    # Verify QA Tests PASSED and build to deploy, otherwise FAIL
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Tests passed
+      run: echo "tests passed"
+    
+
+  # Deploy maci if on-tests-pass success
+  deploy-maci:
+    needs: on-tests-pass
+    if: success()
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12"]
+        os: [ubuntu-24.04]
+  
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: PASSED tests - Building env and deploying maci...
+        run: echo "PASSED tests - Building env and deploying maci..."
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r "deploy/requirements-deploy.txt"
+
+      - name: Build and deploy -> maci
+        env:
+          DEPLOY_PYPI_TOKEN: ${{ secrets.MACI_DEPLOY_PYPI_API_TOKEN }}
+          DEPLOY_SSH_KEY: ${{ secrets.MACI_DEPLOY_GITHUB_KEY }}
+        
+        run: python3 -B deploy/build_deploy_maci.py "maci" "${DEPLOY_PYPI_TOKEN}" "${DEPLOY_SSH_KEY}"
+  
+  
+  # Deploy maci-std if deploy-maci success
+  deploy-maci-std:
+    needs: ["deploy-maci", "on-tests-pass"]
+    if: success()
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10"]
+        os: [ubuntu-24.04]
+  
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: PASSED tests - Building env and deploying maci-std...
+        run: echo "PASSED tests - Building env and deploying maci-std..."
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r "deploy/requirements-deploy.txt"
+  
+      - name: Build and deploy -> maci-std
+        env:
+          DEPLOY_PYPI_TOKEN: ${{ secrets.MACI_STD_DEPLOY_PYPI_API_TOKEN }}
+        
+        run: python3 -B deploy/build_deploy_maci.py "maci-std" "${DEPLOY_PYPI_TOKEN}"
+
+
+  # Deploy maci-only if deploy-maci-std success
+  deploy-maci-only:
+    needs: ["deploy-maci", "on-tests-pass"]
+    if: success()
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10"]
+        os: [ubuntu-24.04]
+  
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: PASSED tests - Building env and deploying maci-only...
+        run: echo "PASSED tests - Building env and deploying maci-only..."
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r "deploy/requirements-deploy.txt"
+
+      - name: Build and deploy -> maci-only
+        env:
+          DEPLOY_PYPI_TOKEN: ${{ secrets.MACI_ONLY_DEPLOY_PYPI_API_TOKEN }}
+        
+        run: python3 -B deploy/build_deploy_maci.py "maci-only" "${DEPLOY_PYPI_TOKEN}"
+
+  
+
+  # FAIL: Run this job if tests failed
+  on-tests-fail:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10"]
+        os: [ubuntu-24.04]
+
+    runs-on: ${{ matrix.os }}
+
+    # Verify QA Tests FAILED and report
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+
+    steps:
+    - name: QA Tests FAILED - Cannot build & deploy maci to PyPI
+      run: |
+        echo "QA Tests FAILED - Cannot build & deploy maci to PyPI"
+        exit 1
