@@ -5,7 +5,7 @@ from glob import glob
 
 
 # Setup
-MACI_VERSION = '1.1.1'
+MACI_VERSION = '0.0.2'
 DEPLOY_TYPE = f"{sys.argv[1]}"
 DEPLOY_API_TOKEN = f"{sys.argv[2]}"
 DEPLOY_SSH_KEY = f"{sys.argv[3]}" if len(sys.argv) == 4 else None
@@ -100,10 +100,10 @@ try:
 
 
     # Build Wheel from Setup, then Publish to PyPI
-    cmd_output = subprocess.run(('python3', '-B', 'setup.py', MACI_VERSION, 'sdist', 'bdist_wheel'))
+    cmd_output = subprocess.run(('python3', '-B', 'setup.py', MACI_VERSION, 'sdist', 'bdist_wheel'), capture_output=True)
     cmd_output.check_returncode()
 
-    cmd_output = subprocess.run(('python3', '-B', '-m', 'twine', 'upload', '--repository', DEPLOY_TYPE, *glob('dist/*'), '--verbose'))
+    cmd_output = subprocess.run(('python3', '-B', '-m', 'twine', 'upload', '--repository', DEPLOY_TYPE, *glob('dist/*'), '--verbose'), capture_output=True)
     cmd_output.check_returncode()
     print('SUCCESS: maci deployment')
 
@@ -112,15 +112,15 @@ try:
 
     # Clone and Tag New Release Number if required
     if DEPLOY_TYPE not in ignore_github_deploy_list:
-        cmd_output = subprocess.run(('git', 'clone', GITHUB_MACI_REPO, './maci_tag'))
+        cmd_output = subprocess.run(('git', 'clone', GITHUB_MACI_REPO, './maci_tag'), capture_output=True)
         cmd_output.check_returncode()
 
         os.chdir('maci_tag/')
 
-        cmd_output = subprocess.run(('git', 'tag', f'v{MACI_VERSION}', '-m', f"Release v{MACI_VERSION}"))
+        cmd_output = subprocess.run(('git', 'tag', f'v{MACI_VERSION}', '-m', f"Release v{MACI_VERSION}"), capture_output=True)
         cmd_output.check_returncode()
 
-        cmd_output = subprocess.run(('git', 'push', 'origin', f'v{MACI_VERSION}'))
+        cmd_output = subprocess.run(('git', 'push', 'origin', f'v{MACI_VERSION}'), capture_output=True)
         cmd_output.check_returncode()
 
         os.chdir('..')
