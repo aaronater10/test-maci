@@ -5,7 +5,7 @@ from glob import glob
 
 
 # Setup
-MACI_VERSION = '0.0.3'
+MACI_VERSION = '0.0.4'
 DEPLOY_TYPE = f"{sys.argv[1]}"
 DEPLOY_API_TOKEN = f"{sys.argv[2]}"
 DEPLOY_SSH_KEY = f"{sys.argv[3]}" if len(sys.argv) == 4 else None
@@ -85,15 +85,15 @@ try:
     subprocess.run(('cp', '-f', '-r', '../src/maci/', '.')).check_returncode()
     subprocess.run(('cp', '-f', '../README.md', '.')).check_returncode()
 
-    # Prep: maci-std
+    # Prep: test-maci-std
     deploy_type_path = ''
-    if DEPLOY_TYPE == 'maci-std':
+    if DEPLOY_TYPE == 'test-maci-std':
         deploy_type_path = 'maci_std'
         subprocess.run(('cp', '-f', *glob(f'alt_dist/{deploy_type_path}/*.py*'), 'maci/')).check_returncode()
         subprocess.run(('cp', '-f', f'alt_dist/{deploy_type_path}/MANIFEST.in', f'alt_dist/{deploy_type_path}/setup.cfg', '.')).check_returncode()
 
-    # Prep: maci-only
-    if DEPLOY_TYPE == 'maci-only':
+    # Prep: test-maci-only
+    if DEPLOY_TYPE == 'test-maci-only':
         deploy_type_path = 'maci_only'
         subprocess.run(('cp', '-f', *glob(f'alt_dist/{deploy_type_path}/*.py*'), 'maci/')).check_returncode()
         subprocess.run(('cp', '-f', f'alt_dist/{deploy_type_path}/MANIFEST.in', f'alt_dist/{deploy_type_path}/setup.cfg', '.')).check_returncode()
